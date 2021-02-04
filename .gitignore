@@ -1,0 +1,6 @@
+/datafiles/*.in
+/results
+/src/omp-skyline
+/src/mpi-skyline
+/src/skyline
+Relazione.odt
