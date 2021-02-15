@@ -11,8 +11,9 @@ Usage: ./script method [-s] [datafiles..]
 
 Method:
 Method is a string that corresponds to the parallel technology used. In particular:
-	omp: Open-mp parallel technology
-	mpi: mpi parallel technology
+	s: serial, not parallel
+	o: Open-mp parallel technology
+	m: mpi parallel technology
 
 -s	--silence	suppress output execution of skyline algorithms	
 
@@ -20,10 +21,10 @@ Method is a string that corresponds to the parallel technology used. In particul
 In the datafiles.. argument you can specify which datafile you want to be tested.
 If no datafile is provided circle-N1000-D2.in datafile will be used by default.
 Example:
-	./script 0  /datafiles/circle-N1000-D2.in		(only one datafile)
-	./script 0 						(same as above)
-	./script 0 $(find ./datafiles/ -name /'test[1234]*/') 	(first four test datafiles)
-	./script 0 -s $(find ./datafiles/ -name /'*.in/') 	(all datafiles, silent mode)
+	./script so /datafiles/circle-N1000-D2.in		(only one datafile, serial + omp)
+	./script os 						(same as above)
+	./script som $(find ./datafiles/ -name /'test[1234]*/')	(first four test datafiles, all methods)
+	./script mos -s $(find ./datafiles/ -name /'*.in/') 	(all datafiles, all methods, silent mode)
 
 All results are saved in ./results/
 '
@@ -31,12 +32,14 @@ All results are saved in ./results/
 fi
 
 #check for mandatory argument
-if [[ $# -eq 0 || ( "$1" != "omp" && "$1" != "mpi" ) ]]; then
+# regex from: https://stackoverflow.com/questions/66201060/regex-operator-and-grep-e-fail/66201250#66201250
+if ! echo "$1" | grep -qsP '^(?!.*(.).*\1)[som]+$'; then
 	echo 'Not valid input. 
-Usage: ./script mode [datafiles..]. Use -h or --help to display the help message.'
+Usage: ./script method [datafiles..]. Use -h or --help to display the help message.'
 	exit 128
 fi
-mode=$1
+
+mode="$1"
 shift; #deleting mandatory argument from $@
 
 #check for silent mode
@@ -47,6 +50,10 @@ fi
 
 #creating /results/ folder if not already exists
 mkdir -p ./results/
+
+#make datafiles if not done yet
+echo 'checking datafiles..'
+make -C ./datafiles/
 
 #loading datafiles
 datafiles=""
@@ -76,20 +83,43 @@ correct=0
 errors=0
 
 for datafile in $datafiles; do
-	echo "computing $datafile.."
+	echo -e "\n-> computing $datafile.."
+	outs=''	
 	temp="${datafile##*/}"
-	temp="${temp::-2}out"
-	serial="./results/serial-${temp}"
-	parallel="./results/${mode}-${temp}"
-	./src/skyline < ${datafile} > $serial
-	./src/${mode}-skyline < ${datafile} > $parallel
-	if diff ${serial} ${parallel}; then
-		echo -e "\nresults match!\n"
+	temp="${temp::-2}out"	
+	while [ -n "$mode" ]; do
+	    current_mode=${mode:0:1}
+	    out="./results/${current_mode}-${temp}"
+	    outs="${outs} ${out}"
+	    case "$current_mode" in
+	    's')
+		echo "computing serial.."
+		./src/skyline < ${datafile} > ${out};;
+	    'o')
+		echo "computing omp.."
+		./src/omp-skyline < ${datafile} > ${out};;
+	    'm')
+		echo "computing mpi.."
+		mpirun ./src/mpi-skyline < ${datafile} > ${out};;
+	    esac
+	    mode=${mode:1}
+	done
+	outs=( $outs )
+	if [[ ${#outs[@]} -gt 1 ]]; then
+	    echo 'computing differences..'
+	    if [[ ${#outs[@]} -eq 2 ]]; then
+                diff ${outs[@]}
+            else
+                diff3 ${outs[@]}
+            fi
+	    if [[ $? -eq 0 ]]; then
+		echo 'results match!'
 		((correct++))
-	else
-		echo -e "\nresults don't match!\n"
+            else
+		echo "results don't match!"
 		((errors++))
-	fi	
+	    fi
+	fi
 done
 
 #display goodbaye message
