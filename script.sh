@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Giulio Golinelli
+# 0000883007
+# 17/02/2021
+# High Performance Computing
+#
+# Script utility
+
+
+
+#check for help message
 if [ "$1" == "-h" -o "$1" == "--help" ]; then
 	echo '
 script is an utility script for the skyline project

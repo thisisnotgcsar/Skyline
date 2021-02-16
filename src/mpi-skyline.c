@@ -1,8 +1,11 @@
 /*	
- *	mpi implementation of skyline algorithm
+ * Giulio Golinelli
+ * 0000883007
+ * 17/02/2021
+ * High Performance Computing
  *
- *	Giulio Golinelli 0000883007
- */ 
+ * MPI Skyline 
+*/ 
 
 #include "hpc.h"
 #include <stdio.h>
