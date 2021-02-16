@@ -21,10 +21,10 @@ Method is a string that corresponds to the parallel technology used. In particul
 In the datafiles.. argument you can specify which datafile you want to be tested.
 If no datafile is provided circle-N1000-D2.in datafile will be used by default.
 Example:
-	./script so /datafiles/circle-N1000-D2.in		(only one datafile, serial + omp)
-	./script os 						(same as above)
-	./script som $(find ./datafiles/ -name /'test[1234]*/')	(first four test datafiles, all methods)
-	./script mos -s $(find ./datafiles/ -name /'*.in/') 	(all datafiles, all methods, silent mode)
+	./script.sh so /datafiles/circle-N1000-D2.in		(only one datafile, serial + omp)
+	./script.sh os 						(same as above)
+	./script.sh som $(find ./datafiles/ -name /'test[1234]*/')	(first four test datafiles, all methods)
+	./script.sh mos -s $(find ./datafiles/ -name /'*.in/') 	(all datafiles, all methods, silent mode)
 
 All results are saved in ./results/
 '
@@ -39,7 +39,7 @@ Usage: ./script method [datafiles..]. Use -h or --help to display the help messa
 	exit 128
 fi
 
-mode="$1"
+methods="$1"
 shift; #deleting mandatory argument from $@
 
 #check for silent mode
@@ -78,17 +78,19 @@ fi
 echo "compiling sources.."
 make -C ./src
 
-#executing
 correct=0
-errors=0
-
+failed=0
+#for every datafile
 for datafile in $datafiles; do
 	echo -e "\n-> computing $datafile.."
+	#builidng output filenames
 	outs=''	
 	temp="${datafile##*/}"
-	temp="${temp::-2}out"	
-	while [ -n "$mode" ]; do
-	    current_mode=${mode:0:1}
+	temp="${temp::-2}out"
+	temp_methods=$methods;
+	#for every mode -> compute
+	while [ -n "$temp_methods" ]; do
+	    current_mode=${temp_methods:0:1}
 	    out="./results/${current_mode}-${temp}"
 	    outs="${outs} ${out}"
 	    case "$current_mode" in
@@ -102,7 +104,7 @@ for datafile in $datafiles; do
 		echo "computing mpi.."
 		mpirun ./src/mpi-skyline < ${datafile} > ${out};;
 	    esac
-	    mode=${mode:1}
+	    temp_methods=${temp_methods:1}
 	done
 	outs=( $outs )
 	if [[ ${#outs[@]} -gt 1 ]]; then
@@ -114,15 +116,15 @@ for datafile in $datafiles; do
             fi
 	    if [[ $? -eq 0 ]]; then
 		echo 'results match!'
-		((correct++))
+		(( correct++ ))
             else
 		echo "results don't match!"
-		((errors++))
+	    	(( failed++ ))
 	    fi
 	fi
 done
 
 #display goodbaye message
-echo "all datafiles tested!
-You got $correct matching results and $errors failed computations.
-"
+echo -e "\nall datafiles tested!"
+datafiles=( $datafiles )
+echo "$correct correct and $failed failed matches upon ${#datafiles[@]} datafiles with $((${#datafiles[@]} * ${#methods})) total computations!"
