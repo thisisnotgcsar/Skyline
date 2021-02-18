@@ -15,16 +15,19 @@ This is the project's directory and files structure and it's meaning:
 
 ### Compiling
 For compiling you have two options:
+
 ###### 1: Make 
 In both ./datafiles/ and ./src/ direcotries there is a Makefile.  
 Run:
     $ Make -C ./datafiles/
     $ Make -C ./src/
 To automatically compile executables and create input datafiles to use.
+
 ###### 2: script.sh
 ``script.sh`` is a versatile utility script made to help you deploy and test this project.
 To only compile and create files in both ./datafiles/ and ./results run:
     $ ./script.sh -c
 Or:
     $ ./script.sh --compile-only
+
 >   **N.B.**: script.sh will always run ``make`` in both directories  before anything else to be sure he is testing with up-to-date sources and input files.
