@@ -1,14 +1,14 @@
 # HPC Paper 2021
 *Giulio Golinelli 0000883007*
 
-## Directory Structure
-This is the project's directory and files structure and it's meaning:
+### Directory Structure
+This is the project's directory and files structure and it's meaning:  
 (Bolded directories contain a "Makefile" to be run before any test)
-- /: root directory
-    - **./datafiles/**: datafile's directory for the inputs
-    - **./src/**: source's directory
-    - ./results/: processed datafile's output directory
-    - script.sh: BASH script utility tool for easy deployment and test
-    - Report.pdf: The report
-    - README: This file
+-   /: root directory
+    -   **./datafiles/**: datafile's directory for the inputs
+    -   **./src/**: source's directory
+    -   ./results/: processed datafile's output directory
+    -   script.sh: BASH script utility tool for easy deployment and test
+    -   Report.pdf: The report
+    -   README: This file
 
