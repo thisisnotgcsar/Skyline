@@ -35,5 +35,6 @@ Or:
 
     $ ./script.sh --compile-only
 
->   **N.B.**: ``script.sh`` will always run ``make`` in both directories before anything else to be sure it is testing up-to-date sources and input files.
+>   **N.B.**: ``script.sh`` will always run ``make`` in both directories before anything else to be sure it is testing up-to-date sources and input files.  
+
 >   **N.B.**: To delve into ``script.sh`` usage and features run ``./script.sh -h`` or ``./script.sh --help``
