@@ -41,6 +41,14 @@ All results are saved in ./results/
 	exit 0
 fi
 
+if [ "$1" == "-c" -o "$1" == "--only-compile" ]; then
+	echo "-> Compiling datafiles..."
+	make -C ./datafiles/
+	echo "-> Compiling sources..."
+	make -C ./src/
+	exit 0
+fi
+
 #check for mandatory argument
 # regex from: https://stackoverflow.com/questions/66201060/regex-operator-and-grep-e-fail/66201250#66201250
 if ! echo "$1" | grep -qsP '^(?!.*(.).*\1)[som]+$'; then
@@ -86,7 +94,7 @@ fi
 
 #compile all sources
 echo "compiling sources.."
-make -C ./src
+make -C ./src/
 
 correct=0
 failed=0
