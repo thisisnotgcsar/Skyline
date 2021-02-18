@@ -1,13 +1,14 @@
-Questo archivio contiene il materiale per il progetto del corso di
-High Performance Computing, laurea in Ingegneria e Scienze
-Informatiche, Universita' di Bologna sede di Cesena, AA 2020/2021.
+# HPC Paper 2021
+*Giulio Golinelli 0000883007*
 
-Il file README (questo file) dovra' includere le istruzioni per la
-compilazione e l'esecuzione dei programmi consegnati; per comodita',
-nella directory src/ e' presente un Makefile che dovrebbe gia' essere
-in grado di compilare le versioni OpenMP, MPI e/o CUDA eventualmente
-presenti nella directory stessa. Si puo' modificare il Makefile
-fornito, oppure si puo' decidere di non usarlo ed effettuare la
-compilazione in modo manuale. In tal caso specificare in questo file i
-comandi da usare per la compilazione dei programmi.
+## Directory Structure
+This is the project's directory and files structure and it's meaning:
+(Bolded directories contain a "Makefile" to be run before any test)
+- /: root directory
+    - **./datafiles/**: datafile's directory for the inputs
+    - **./src/**: source's directory
+    - ./results/: processed datafile's output directory
+    - script.sh: BASH script utility tool for easy deployment and test
+    - Report.pdf: The report
+    - README: This file
 
