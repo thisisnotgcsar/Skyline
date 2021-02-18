@@ -11,11 +11,11 @@
 
 #check for help message
 if [ "$1" == "-h" -o "$1" == "--help" ]; then
-	echo '
+	echo $'
 script is an utility script for the skyline project
---> It compiles sources under /src/ with make
---> It runs the source with as many datafiles you want
---> It compares results with the serial version
+--> It compiles sources under /src/ and /datafiles/ with make
+--> It runs as many sources you want with as many datafiles you want with a single command
+--> It compares datafile\'s output between eachother and shows differences
 
 Usage: ./script method [-s] [datafiles..]
 
@@ -33,15 +33,15 @@ If no datafile is provided circle-N1000-D2.in datafile will be used by default.
 Example:
 	./script.sh so /datafiles/circle-N1000-D2.in		(only one datafile, serial + omp)
 	./script.sh os 						(same as above)
-	./script.sh som $(find ./datafiles/ -name /'test[1234]*/')	(first four test datafiles, all methods)
-	./script.sh mos -s $(find ./datafiles/ -name /'*.in/') 	(all datafiles, all methods, silent mode)
+	./script.sh som $(find ./datafiles/ -name \'test[1234]*\')(first four test datafiles, all methods)
+	./script.sh mos -s $(find ./datafiles/ -name \'*.in\') 	(all datafiles, all methods, silent mode)
 
 All results are saved in ./results/
 '
 	exit 0
 fi
 
-if [ "$1" == "-c" -o "$1" == "--only-compile" ]; then
+if [ "$1" == '-c' -o "$1" == '--compile-only' ]; then
 	echo "-> Compiling datafiles..."
 	make -C ./datafiles/
 	echo "-> Compiling sources..."
