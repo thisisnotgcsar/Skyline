@@ -152,7 +152,7 @@ int main( int argc, char* argv[] )
     int rank, size;
     int N, start, end, r;     
     int* s;
-    int* result;
+    int* result = NULL;
 
     MPI_Init (&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
