@@ -1,4 +1,5 @@
 /datafiles/*.in
+/datafiles/inputgen
 /results
 /src/omp-skyline
 /src/mpi-skyline
