@@ -1,3 +1,4 @@
+skyline.pdf
 /datafiles/*.in
 /datafiles/inputgen
 /results
@@ -6,4 +7,3 @@
 /src/skyline
 Relazione.odt
 /assets
-skyline.pdf
