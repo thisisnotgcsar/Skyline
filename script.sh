@@ -30,7 +30,7 @@ suppress output execution of skyline algorithms
 
 --cores=list_of_cores
 Optional argument used to test multiple cores.
-list_of_cores is a numerical string representing the order of cores to be used in each method.
+list_of_cores is a numerical, space separated string representing the order of cores to be used in each method.
 If not specified, max number of avaible cores is used.
 
 [datafiles..]
@@ -38,11 +38,19 @@ In the datafiles.. argument you can specify which datafile you want to be tested
 If no datafile is provided circle-N1000-D2.in datafile will be used by default.
 
 Examples:
-	./script.sh so /datafiles/circle-N1000-D2.in	(only one datafile, serial + omp, max number of cores)
-	./script.sh os					(same as above)
-	./script.sh os --cores=\'124\'	(same as above but first with 1, then with 2 and finally with 4 cores)
-	./script.sh som $(find ./datafiles/ -name \'test[1234]*\') (first 4 test datafiles, all methods, max cores)
-	./script.sh mos -s --cores=2 $(find ./datafiles/ -name \'*.in\') (all datafiles, all methods, silent mode, 2 cores)
+	./script.sh so /datafiles/circle-N1000-D2.in	
+	(only one datafile, serial + omp, max number of cores)
+	
+	./script.sh os	(same as above)
+	
+	./script.sh os --cores=\'1 2 4\'
+	(same as above but first with 1, then with 2 and finally with 4 cores)
+	
+	./script.sh som $(find ./datafiles/ -name \'test[1234]*\')
+	(first 4 test datafiles, all methods, max cores)
+	
+	./script.sh mos -s --cores=\'2\' $(find ./datafiles/ -name \'*.in\')
+	(all datafiles, all methods, silent mode, 2 cores)
 
 All results are saved in ./results/
 '
@@ -118,10 +126,8 @@ for datafile in $datafiles; do
 	#builidng output filenames	
 	temp="${datafile##*/}"
 	temp="${temp::-2}out"
-	temp_cores=$cores;
 	#for every core
-	while [ -n "$temp_cores" ]; do
-		current_cores=${temp_cores:0:1}
+	for core in $cores; do
 		temp_methods=$methods;
 		#for every mode
 		outs=''
@@ -134,11 +140,11 @@ for datafile in $datafiles; do
 			echo -e "\ncomputing serial.."
 			./src/skyline < ${datafile} > ${out};;
 		    'o')
-			echo -e "\ncomputing omp with $current_cores cores.."
-			OMP_NUM_THREADS=$current_cores ./src/omp-skyline < ${datafile} > ${out};;
+			echo -e "\ncomputing omp with $core cores.."
+			OMP_NUM_THREADS=$core ./src/omp-skyline < ${datafile} > ${out};;
 		    'm')
-			echo -e "\ncomputing mpi with $current_cores cores.."
-			mpirun -n $current_cores ./src/mpi-skyline < ${datafile} > ${out};;
+			echo -e "\ncomputing mpi with $core cores.."
+			mpirun -n $core ./src/mpi-skyline < ${datafile} > ${out};;
 		    esac
 		    temp_methods=${temp_methods:1}
 		done
@@ -158,7 +164,6 @@ for datafile in $datafiles; do
 			(( failed++ ))
 		    fi
 		fi
-		temp_cores=${temp_cores:1}
 	done
 done
 
