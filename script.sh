@@ -170,4 +170,5 @@ done
 #display goodbaye message
 echo -e "\nall datafiles tested!"
 datafiles=( $datafiles )
-echo "$correct correct and $failed failed matches upon ${#datafiles[@]} datafiles with $((${#datafiles[@]} * ${#cores} * ${#methods})) total computations!"
+computations=$((${#datafiles[@]} * ( $(grep -o ' ' <<< "$cores" | grep -c .) + 1 ) * ${#methods}))
+echo "$correct correct and $failed failed matches upon ${#datafiles[@]} datafiles with $computations total computations!"
