@@ -76,10 +76,20 @@ fi
 methods="$1"
 shift; #deleting mandatory argument from $@
 
+
+#make datafiles if not done yet
+echo 'compiling datafiles..'
+make -C ./datafiles/
+
+
+#compile all sources
+echo "compiling sources.."
+make -C ./src/
+
 #by default the maximum number of cores is used
 cores=$(nproc --all)
 datafiles=''
-
+dirty=0
 #check for optional arguments
 for arg in "${@}"; do
 	#check for silent mode
@@ -90,6 +100,7 @@ for arg in "${@}"; do
 		cores=${arg:8}
 	#check for daratfiles
 	else
+		dirty=1
 		if [[ -e $arg ]]; then
 			if [[ $datafiles == '' ]]; then
 				datafiles=$arg
@@ -102,21 +113,12 @@ for arg in "${@}"; do
 	fi
 done
 #set default datafile
-if [[ $datafiles == '' ]]; then
+if [[ $datafiles == '' && dirty -eq 0 ]]; then
 	datafiles='./datafiles/circle-N1000-D2.in'
 fi
 
 #creating /results/ folder if not already exists
 mkdir -p ./results/
-
-#make datafiles if not done yet
-echo 'checking datafiles..'
-make -C ./datafiles/
-
-
-#compile all sources
-echo "compiling sources.."
-make -C ./src/
 
 correct=0
 failed=0
@@ -126,6 +128,7 @@ for datafile in $datafiles; do
 	#builidng output filenames	
 	temp="${datafile##*/}"
 	temp="${temp::-2}out"
+	serial_computed=0
 	#for every core
 	for core in $cores; do
 		temp_methods=$methods;
@@ -137,8 +140,11 @@ for datafile in $datafiles; do
 		    outs="${outs} ${out}"
 		    case "$current_mode" in
 		    's')
-			echo -e "\ncomputing serial.."
-			./src/skyline < ${datafile} > ${out};;
+			if [[ "$serial_computed" -eq 0 ]]; then
+				echo -e "\ncomputing serial.."
+				./src/skyline < ${datafile} > ${out}
+				serial_computed=1
+			fi;;
 		    'o')
 			echo -e "\ncomputing omp with $core cores.."
 			OMP_NUM_THREADS=$core ./src/omp-skyline < ${datafile} > ${out};;
