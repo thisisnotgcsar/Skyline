@@ -17,7 +17,7 @@ script is an utility script for the skyline project
 --> It runs as many sources, as many datafiles and as many cores you want with a single command
 --> It compares datafile\'s output between eachother and shows differences
 
-Usage: ./script method [-s] [--cores=list_of_cores] [datafiles..]
+Usage: ./script method [-s] [--cores=\'list_of_cores\'] [datafiles..]
 
 Method:
 Method is a string that corresponds to the parallel technology used. In particular:
@@ -40,7 +40,7 @@ If no datafile is provided circle-N1000-D2.in datafile will be used by default.
 Examples:
 	./script.sh so /datafiles/circle-N1000-D2.in	(only one datafile, serial + omp, max number of cores)
 	./script.sh os					(same as above)
-	./script.sh os --cores=124	(same as above but first with 1, then with 2 and finally with 4 cores)
+	./script.sh os --cores=\'124\'	(same as above but first with 1, then with 2 and finally with 4 cores)
 	./script.sh som $(find ./datafiles/ -name \'test[1234]*\') (first 4 test datafiles, all methods, max cores)
 	./script.sh mos -s --cores=2 $(find ./datafiles/ -name \'*.in\') (all datafiles, all methods, silent mode, 2 cores)
 
