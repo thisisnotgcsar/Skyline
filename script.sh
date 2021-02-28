@@ -14,10 +14,10 @@ if [ "$1" == "-h" -o "$1" == "--help" ]; then
 	echo $'
 script is an utility script for the skyline project
 --> It compiles sources under /src/ and /datafiles/ with make
---> It runs as many sources you want with as many datafiles you want with a single command
+--> It runs as many sources, as many datafiles and as many cores you want with a single command
 --> It compares datafile\'s output between eachother and shows differences
 
-Usage: ./script method [-s] [datafiles..]
+Usage: ./script method [-s] [--cores=list_of_cores] [datafiles..]
 
 Method:
 Method is a string that corresponds to the parallel technology used. In particular:
@@ -25,16 +25,24 @@ Method is a string that corresponds to the parallel technology used. In particul
 	o: Open-mp parallel technology
 	m: mpi parallel technology
 
--s	--silence	suppress output execution of skyline algorithms	
+-s	--silence	
+suppress output execution of skyline algorithms	
+
+--cores=list_of_cores
+Optional argument used to test multiple cores.
+list_of_cores is a numerical string representing the order of cores to be used in each method.
+If not specified, max number of avaible cores is used.
 
 [datafiles..]
 In the datafiles.. argument you can specify which datafile you want to be tested.
 If no datafile is provided circle-N1000-D2.in datafile will be used by default.
-Example:
-	./script.sh so /datafiles/circle-N1000-D2.in		(only one datafile, serial + omp)
-	./script.sh os 						(same as above)
-	./script.sh som $(find ./datafiles/ -name \'test[1234]*\')(first four test datafiles, all methods)
-	./script.sh mos -s $(find ./datafiles/ -name \'*.in\') 	(all datafiles, all methods, silent mode)
+
+Examples:
+	./script.sh so /datafiles/circle-N1000-D2.in	(only one datafile, serial + omp, max number of cores)
+	./script.sh os					(same as above)
+	./script.sh os --cores=124	(same as above but first with 1, then with 2 and finally with 4 cores)
+	./script.sh som $(find ./datafiles/ -name \'test[1234]*\') (first 4 test datafiles, all methods, max cores)
+	./script.sh mos -s --cores=2 $(find ./datafiles/ -name \'*.in\') (all datafiles, all methods, silent mode, 2 cores)
 
 All results are saved in ./results/
 '
@@ -60,10 +68,34 @@ fi
 methods="$1"
 shift; #deleting mandatory argument from $@
 
-#check for silent mode
-if [[ $1 == "-s" || $1 == "--silence" ]]; then
-	exec 2>/dev/null
-	shift; #deleting -s optional argument from $@
+#by default the maximum number of cores is used
+cores=$(nproc --all)
+datafiles=''
+
+#check for optional arguments
+for arg in "${@}"; do
+	#check for silent mode
+	if [[ $arg == "-s" || $arg == "--silence" ]]; then
+		exec 2>/dev/null
+	#check for number of cores
+	elif [[ $arg == --cores=* ]]; then
+		cores=${arg:8}
+	#check for daratfiles
+	else
+		if [[ -e $arg ]]; then
+			if [[ $datafiles == '' ]]; then
+				datafiles=$arg
+			else
+				datafiles="${datafiles} $arg"
+			fi
+		else
+			echo "datafile ${arg} doesn't exits!"
+		fi
+	fi
+done
+#set default datafile
+if [[ $datafiles == '' ]]; then
+	datafiles='./datafiles/circle-N1000-D2.in'
 fi
 
 #creating /results/ folder if not already exists
@@ -72,24 +104,6 @@ mkdir -p ./results/
 #make datafiles if not done yet
 echo 'checking datafiles..'
 make -C ./datafiles/
-
-#loading datafiles
-datafiles=""
-if [[ $1 == "" ]]; then
-	datafiles='./datafiles/circle-N1000-D2.in'
-else
-	for datafile in "${@}"; do
-		if [[ -e $datafile ]]; then
-			if [[ $datafiles == "" ]]; then
-				datafiles=$datafile
-			else
-				datafiles="${datafiles} $datafile"
-			fi
-		else
-			echo "${datafile} doesn't  exits!"
-		fi
-	done
-fi
 
 
 #compile all sources
@@ -101,48 +115,54 @@ failed=0
 #for every datafile
 for datafile in $datafiles; do
 	echo -e "\n-> computing $datafile.."
-	#builidng output filenames
-	outs=''	
+	#builidng output filenames	
 	temp="${datafile##*/}"
 	temp="${temp::-2}out"
-	temp_methods=$methods;
-	#for every mode -> compute
-	while [ -n "$temp_methods" ]; do
-	    current_mode=${temp_methods:0:1}
-	    out="./results/${current_mode}-${temp}"
-	    outs="${outs} ${out}"
-	    case "$current_mode" in
-	    's')
-		echo "computing serial.."
-		./src/skyline < ${datafile} > ${out};;
-	    'o')
-		echo "computing omp.."
-		./src/omp-skyline < ${datafile} > ${out};;
-	    'm')
-		echo "computing mpi.."
-		mpirun ./src/mpi-skyline < ${datafile} > ${out};;
-	    esac
-	    temp_methods=${temp_methods:1}
+	temp_cores=$cores;
+	#for every core
+	while [ -n "$temp_cores" ]; do
+		current_cores=${temp_cores:0:1}
+		temp_methods=$methods;
+		#for every mode
+		outs=''
+		while [ -n "$temp_methods" ]; do
+		    current_mode=${temp_methods:0:1}
+		    out="./results/${current_mode}-${temp}"
+		    outs="${outs} ${out}"
+		    case "$current_mode" in
+		    's')
+			echo -e "\ncomputing serial.."
+			./src/skyline < ${datafile} > ${out};;
+		    'o')
+			echo -e "\ncomputing omp with $current_cores cores.."
+			OMP_NUM_THREADS=$current_cores ./src/omp-skyline < ${datafile} > ${out};;
+		    'm')
+			echo -e "\ncomputing mpi with $current_cores cores.."
+			mpirun -n $current_cores ./src/mpi-skyline < ${datafile} > ${out};;
+		    esac
+		    temp_methods=${temp_methods:1}
+		done
+		outs=( $outs )
+		if [[ ${#outs[@]} -gt 1 ]]; then
+		    echo -e "\ncomputing differences.."
+		    if [[ ${#outs[@]} -eq 2 ]]; then
+			diff ${outs[@]}
+		    else
+			diff3 ${outs[@]}
+		    fi
+		    if [[ $? -eq 0 ]]; then
+			echo '> results match!'
+			(( correct++ ))
+		    else
+			echo "> results don't match!"
+			(( failed++ ))
+		    fi
+		fi
+		temp_cores=${temp_cores:1}
 	done
-	outs=( $outs )
-	if [[ ${#outs[@]} -gt 1 ]]; then
-	    echo 'computing differences..'
-	    if [[ ${#outs[@]} -eq 2 ]]; then
-                diff ${outs[@]}
-            else
-                diff3 ${outs[@]}
-            fi
-	    if [[ $? -eq 0 ]]; then
-		echo 'results match!'
-		(( correct++ ))
-            else
-		echo "results don't match!"
-	    	(( failed++ ))
-	    fi
-	fi
 done
 
 #display goodbaye message
 echo -e "\nall datafiles tested!"
 datafiles=( $datafiles )
-echo "$correct correct and $failed failed matches upon ${#datafiles[@]} datafiles with $((${#datafiles[@]} * ${#methods})) total computations!"
+echo "$correct correct and $failed failed matches upon ${#datafiles[@]} datafiles with $((${#datafiles[@]} * ${#cores} * ${#methods})) total computations!"
