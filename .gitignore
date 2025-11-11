@@ -1,4 +1,5 @@
 skyline.pdf
+GiulioGolinelli.zip
 /datafiles/*.in
 /datafiles/inputgen
 /results
@@ -7,3 +8,5 @@ skyline.pdf
 /src/skyline
 Relazione.odt
 /assets
+report.html
+target
