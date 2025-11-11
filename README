@@ -5,7 +5,7 @@
 This is the project's directory and files structure and it's meaning:  
 (Bolded directories contain a "Makefile" to be run before any test)
 
--   /: root directory
+-   GiulioGolinelli/: root directory
     -   **./datafiles/**: datafile's directory for the inputs
     -   **./src/**: source's directory
     -   ./results/: processed datafile's output directory

@@ -1,8 +1,4 @@
-## Makefile per la generazione degli input per il progetto di High
-## Performance Computing 2020/2021, corso di laurea in Ingegneria e
-## Scienze Informatiche, Universita' di Bologna.
-
-## Ultima modifica: 2020-09-26, Moreno Marzolla <moreno.marzolla(at)unibo.it>
+## Makefile for generating inputs
 NPOINTS:=100000
 
 CFLAGS=-Wall -Wpedantic -std=c99
@@ -36,7 +32,7 @@ test2-N$(NPOINTS)-D4.in:
 test3-N$(NPOINTS)-D10.in:
 	rbox $(NPOINTS) d D10 > $@
 
-## 8d symplex
+## 8d simplex
 test4-N$(NPOINTS)-D8.in:
 	rbox $(NPOINTS) y D8 > $@
 

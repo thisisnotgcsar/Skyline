@@ -21,16 +21,16 @@
  *
  * --------------------------------------------------------------------------
  *
- * Questo file genera il caso pessimo per l'algoritmo skyline, ossia un 
- * insieme di N punti in D dimensioni che fanno tutti parte dello skyline.
+ * This file generates the worst-case input for the skyline algorithm, 
+ * i.e., a set of N points in D dimensions where all points are part of the skyline.
  * 
- * Per compilare:
+ * To compile:
  * gcc -std=c99 -Wall -Wpedantic inputgen.c -o inputgen
  *
- * Per eseguire:
+ * To execute:
  * ./inputgen [N [D]] > output
  *
- * Esempio:
+ * Example:
  * ./inputgen 10000 10 > worst.in
  *
  ****************************************************************************/
