@@ -12,12 +12,5 @@ WORKDIR /workspace/
 # Copy all project files to workspace
 COPY . /workspace/
 
-# Build all input test datafiles
-RUN make -C /workspace/datafiles circle-N1000-D2.in
-
-# Build the Rust project
-WORKDIR /workspace/src/rust
-RUN cargo build --release
-
-# Run the Rust binary with a sample datafile as input
-CMD ["/bin/bash", "-c", "/workspace/src/rust/target/release/rust < /workspace/datafiles/circle-N1000-D2.in"]
+# Build and run the Rust serial executable with timing and the simplest datafile
+CMD ["make", "rust-serial", "datafile=circle-N1000-D2.in"]

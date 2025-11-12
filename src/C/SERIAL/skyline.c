@@ -2,67 +2,39 @@
  *
  * skyline.c
  *
- * Serial implementaiton of the skyline operator
- *
- * Copyright (C) 2020 Moreno Marzolla
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Serial implementation of the skyline operator
  *
  * --------------------------------------------------------------------------
  *
- * Questo programma calcola lo skyline di un insieme di punti in D
- * dimensioni letti da standard input. Per una descrizione completa
- * si veda la specifica del progetto sul sito del corso:
+ * This program computes the skyline of a set of points in D dimensions
+ * read from standard input.
  *
- * https://www.moreno.marzolla.name/teaching/HPC/
- *
- * Per compilare:
- *
+ * Compile with:
  * gcc -D_XOPEN_SOURCE=600 -std=c99 -Wall -Wpedantic -O2 skyline.c -o skyline
  *
- * (il flag -D_XOPEN_SOURCE=600 e' superfluo perche' viene settato
- * nell'header "hpc.h", ma definirlo tramite la riga di comando fa si'
- * che il programma compili correttamente anche se non si include
- * "hpc.h", o non lo si includa come primo file).
- *
- * Per eseguire il programma:
- *
+ * Run with:
  * ./skyline < input > output
  *
  ****************************************************************************/
 
-#include "hpc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
 typedef struct {
-    float *P;   /* coordinates P[i][j] of point i               */
-    int N;      /* Number of points (rows of matrix P)          */
-    int D;      /* Number of dimensions (columns of matrix P)   */
+    float *P;   // Coordinates P[i][j] of point i
+    int N;      // Number of points
+    int D;      // Number of dimensions
 } points_t;
 
 /**
- * Read input from stdin. Input format is:
- *
- * d [other ignored stuff]
+ * Read input from stdin. Input format:
+ * D [ignored]
  * N
- * p0,0 p0,1 ... p0,d-1
- * p1,0 p1,1 ... p1,d-1
+ * p0,0 p0,1 ... p0,D-1
+ * p1,0 p1,1 ... p1,D-1
  * ...
- * pn-1,0 pn-1,1 ... pn-1,d-1
- *
+ * pN-1,0 pN-1,1 ... pN-1,D-1
  */
 void read_input( points_t *points )
 {
@@ -75,7 +47,7 @@ void read_input( points_t *points )
         exit(EXIT_FAILURE);
     }
     assert(D >= 2);
-    if (NULL == fgets(buf, sizeof(buf), stdin)) { /* ignore rest of the line */
+    if (NULL == fgets(buf, sizeof(buf), stdin)) { // ignore rest of the line
         fprintf(stderr, "FATAL: can not read the first line\n");
         exit(EXIT_FAILURE);
     }
@@ -98,6 +70,9 @@ void read_input( points_t *points )
     points->D = D;
 }
 
+/**
+ * Free memory used by points
+ */
 void free_points( points_t* points )
 {
     free(points->P);
@@ -105,14 +80,15 @@ void free_points( points_t* points )
     points->N = points->D = -1;
 }
 
-/* Returns 1 iff |p| dominates |q| */
+/**
+ * Returns 1 if p dominates q, 0 otherwise
+ */
 int dominates( const float * p, const float * q, int D )
 {
     int k;
     int dominated = 0;
 
-    /* The following loop could be merged, but the keep them separated
-       for the sake of readability */
+    /* The following loop could be merged, but kept separate for readability */
     for (k=0; k<D; k++) {
         if (p[k] < q[k]) {
             return 0;
@@ -125,10 +101,8 @@ int dominates( const float * p, const float * q, int D )
 }
 
 /**
- * Compute the skyline of |points|. At the end, s[i] == 1 iff point
- * |i| belongs to the skyline. This function returns the number r of
- * points in to the skyline. The caller is responsible for allocating
- * a suitably sized array |s|.
+ * Compute the skyline of points. At the end, s[i] == 1 if point i is in the skyline.
+ * Returns the number of skyline points. Caller must allocate s.
  */
 int skyline( const points_t *points, int *s )
 {
@@ -155,10 +129,8 @@ int skyline( const points_t *points, int *s )
 }
 
 /**
- * Print the coordinates of points belonging to the skyline |s| to
- * standard ouptut. s[i] == 1 iff point i belongs to the skyline.  The
- * output format is the same as the input format, so that this program
- * can process its own output.
+ * Print the coordinates of skyline points to stdout.
+ * Output format matches input format.
  */
 void print_skyline( const points_t* points, const int *s, int r )
 {
@@ -191,15 +163,7 @@ int main( int argc, char* argv[] )
     read_input(&points);
     int *s = (int*)malloc(points.N * sizeof(*s));
     assert(s);
-    const double tstart = hpc_gettime();
-    const int r = skyline(&points, s);
-    const double elapsed = hpc_gettime() - tstart;
-    print_skyline(&points, s, r);
-
-    fprintf(stderr,
-            "\n\t%d points\n\t%d dimensione\n\t%d points in skyline\n\nExecution time %f seconds\n",
-            points.N, points.D, r, elapsed);
-
+    skyline(&points, s);
     free_points(&points);
     free(s);
     return EXIT_SUCCESS;

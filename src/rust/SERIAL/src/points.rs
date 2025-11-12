@@ -81,11 +81,4 @@ impl Points {
 
         Points {p,n,d}
     }
-
-    /// Print all the points in the structure
-    pub fn print_points(&self) {
-        for (i, point) in self.p.iter().enumerate() {
-            println!("Point {}: {:?}", i, point);
-        }
-    }
 }

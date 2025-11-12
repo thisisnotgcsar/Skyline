@@ -12,10 +12,12 @@
  */
 
 #include "hpc.h"
+#include <fcntl.h>    // For open
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h> // For waitpid and macros
+#include <unistd.h>   // For fork, execvp
 
 int main(int argc, char* argv[])
 {
@@ -34,6 +36,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     } else if (pid == 0) {
         // Child process: execute the external program
+        freopen("/dev/null", "w", stdout);
         execvp(argv[1], &argv[1]);
         // If execvp returns, there was an error launching the program
         perror("execvp");

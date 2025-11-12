@@ -3,9 +3,9 @@ NPOINTS:=100000
 
 CFLAGS=-Wall -Wpedantic -std=c99
 
-.PHONY: ALL
+.PHONY: all
 
-ALL: \
+all: \
 	circle-N1000-D2.in \
 	test1-N$(NPOINTS)-D3.in \
 	test2-N$(NPOINTS)-D4.in \
