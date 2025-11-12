@@ -109,6 +109,7 @@ void free_points( points_t* points )
 int dominates( const float * p, const float * q, int D )
 {
     int k;
+    int dominated = 0;
 
     /* The following loop could be merged, but the keep them separated
        for the sake of readability */
@@ -116,13 +117,11 @@ int dominates( const float * p, const float * q, int D )
         if (p[k] < q[k]) {
             return 0;
         }
-    }
-    for (k=0; k<D; k++) {
         if (p[k] > q[k]) {
-            return 1;
+            dominated = 1;
         }
     }
-    return 0;
+    return dominated;
 }
 
 /**

@@ -1,5 +1,8 @@
 mod points;
+mod skyline;
 
 fn main() {
-    println!("Hello, world!");
+    let pts = points::Points::read_from_input();
+    let skyline = skyline::skyline(&pts);
+    skyline::print_skyline(&pts, &skyline);
 }

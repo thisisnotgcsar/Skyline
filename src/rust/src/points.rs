@@ -25,19 +25,20 @@ impl Points {
 
         // Read dimension (D)
         let d: usize = match lines.next().and_then(|line| line.ok()) {
-            Some(line) => line.trim().parse().unwrap_or_else(|_| {
-                eprintln!("FATAL: cannot read the dimension");
-                process::exit(1);
-            }),
+            Some(line) => line
+                .split_whitespace()
+                .next()
+                .and_then(|token| token.parse().ok())
+                .unwrap_or_else(|| {
+                    eprintln!("FATAL: cannot read the dimension");
+                    std::process::exit(1);
+                }),
             None => {
                 eprintln!("FATAL: cannot read the dimension");
-                process::exit(1);
+                std::process::exit(1);
             }
         };
         assert!(d >= 2, "FATAL: dimension must be at least 2");
-
-        // Ignore the rest of the first line
-        lines.next();
 
         // Read number of points (N)
         let n: usize = match lines.next().and_then(|line| line.ok()) {
