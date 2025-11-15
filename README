@@ -6,6 +6,7 @@ It includes multiple implementations, input data generators, and a timer utility
 - [2. How to Run (Dockerized)](#2-how-to-run-dockerized)
   - [2.1. Makefile Targets](#21-makefile-targets)
   - [2.2. Datafiles Targets](#22-datafiles-targets)
+  - [2.3. Plotting Execution Times](#23-plotting-execution-times)
 - [3. Directory Structure](#3-directory-structure)
 - [4. Contributing](#4-contributing)
 - [5. Meta](#5-meta)
@@ -32,17 +33,25 @@ All compilation and execution are handled inside a Docker container.
 To build and run the project, simply use the provided script:
 
 ```sh
-./skyline.sh [IMPLEMENTATION_TARGET] [DATAFILE_TARGET]
+./skyline.sh [IMPLEMENTATION_TARGET] [DATAFILE_TARGET] [--silence|-s] [--verbose|-v]
 ```
 - `IMPLEMENTATION_TARGET`: One of the Makefile's implementation targets (default: c-serial)
 - `DATAFILE_TARGET`: One of the datafile targets (default: circle)
+- `--silence` or `-s`: If set, silences the output of the executable.
+- `--verbose` or `-v`: If set, shows all Docker and Makefile logs.
+
+**What happens when you run the script:**
+- The Docker image is built with the requirements specified by your arguments.
+- The container is run and executes the selected implementation on the chosen datafile.
+- Output and timing information are displayed.
+- All files created inside the container are automatically deleted after execution.
 
 Example:
 ```sh
 ./skyline.sh rust-serial circle
 ```
 
-The script will automatically build the Docker image, run the container, and execute the selected target with the specified datafile target.
+The script will automatically build the Docker image, run the container, execute the selected target with the specified datafile target, and clean up after itself.
 
 ## 2.1. Makefile Targets
 
@@ -51,7 +60,6 @@ The following targets are available in the Makefile (use as `[IMPLEMENTATION_TAR
 - `c-serial`        : Build and run the serial C implementation
 - `openmp`          : Build and run the OpenMP implementation
 - `mpi`             : Build and run the MPI implementation
-- `cuda`            : Build and run the CUDA implementation
 - `rust-serial`     : Build and run the Rust serial implementation
 - `rust-parallel`   : Build and run the Rust parallel implementation
 - `all`             : Build all executables and prerequisites
@@ -73,6 +81,35 @@ The following datafile targets can be used (use as `[DATAFILE_TARGET]`):
 
 > These correspond to targets in `./datafiles/Makefile` and will generate `.in` files for testing.
 
+## 2.3. Plotting Execution Times
+
+A Python script is provided to run all implementations on a selected datafile and visualize their execution times.
+
+**Script:** `plot_skyline_times.py`
+
+**Usage:**
+```sh
+python3 plot_skyline_times.py [--help|-h] [DATAFILE_TARGET]
+```
+- `DATAFILE_TARGET`: One of the valid datafile targets (default: `circle`).  
+- `--help` or `-h`: Show help and list available datafile targets.
+
+**What it does:**
+- Runs `./skyline.sh all <DATAFILE_TARGET> --silence` to benchmark all implementations.
+- Parses the output for execution times.
+- Plots a bar graph and saves it as `skyline_times.png`.
+
+**Example:**
+```sh
+python3 plot_skyline_times.py test3
+```
+
+**Dependencies:**  
+You need `matplotlib` installed. Install it with:
+```sh
+pip3 install matplotlib
+```
+
 ---
 
 # 3. Directory Structure
@@ -82,7 +119,9 @@ The following datafile targets can be used (use as `[DATAFILE_TARGET]`):
     -   `./C/`: C implementations (serial, OpenMP, MPI, CUDA)
     -   `./rust/`: Rust implementations (serial, parallel)
     -   `./timer/`: Timer utility
+-   `results/`: output directory for generated plots and processed datafiles
 -   `skyline.sh`: BASH utility script for easy deployment and testing
+-   `plot_skyline_times.py`: Python script for plotting execution times
 -   `Dockerfile`: Container build file
 -   `Makefile`: Top-level build file
 -   `README`: This file

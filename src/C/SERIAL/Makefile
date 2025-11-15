@@ -3,7 +3,7 @@ CFLAGS = -std=c99 -Wall -Wpedantic -O2 -D_XOPEN_SOURCE=600
 LDLIBS = -lm
 
 skyline: skyline.c
-	$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
+	$(CC) $(CFLAGS) $< -o c-serial $(LDLIBS)
 
 clean:
 	rm -f skyline *.o *~

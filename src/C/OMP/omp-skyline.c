@@ -7,7 +7,6 @@
  * OMP Skyline
 */
 
-#include "hpc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -178,14 +177,8 @@ int main(int argc, char *argv[])
     read_input(&points);
     int *s = (int *)malloc(points.N * sizeof(*s));
     assert(s);
-    const double tstart = hpc_gettime();
     const int r = skyline(&points, s);
-    const double elapsed = hpc_gettime() - tstart;
     print_skyline(&points, s, r);
-
-    fprintf(stderr,
-            "\n\t%d points\n\t%d dimensione\n\t%d points in skyline\n\nExecution time %f seconds\n",
-            points.N, points.D, r, elapsed);
 
     free_points(&points);
     free(s);

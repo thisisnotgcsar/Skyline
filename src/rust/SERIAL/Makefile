@@ -1,9 +1,7 @@
-RUST_EXE:=target/release/rust
+.PHONY: all clean
 
-all: $(RUST_EXE)
-
-$(RUST_EXE):
-	cargo build --release
+all:
+	cargo build --release > /dev/null 2>&1
 
 clean:
-	cargo clean
+	cargo clean > /dev/null 2>&1

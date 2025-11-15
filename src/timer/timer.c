@@ -36,7 +36,9 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     } else if (pid == 0) {
         // Child process: execute the external program
-        freopen("/dev/null", "w", stdout);    // Optional: redirect child's stdout to /dev/null
+        if (getenv("SILENCE") && strcmp(getenv("SILENCE"), "1") == 0) {
+            freopen("/dev/null", "w", stdout); // Silence output if SILENCE=1
+        }
         execvp(argv[1], &argv[1]);
         // If execvp returns, there was an error launching the program
         perror("execvp");
@@ -59,6 +61,6 @@ int main(int argc, char* argv[])
     }
 
     // Print the measured execution time
-    fprintf(stderr, "\nExecution time %f seconds\n", elapsed);
+    fprintf(stderr, "\nExecution time for %s: %f seconds\n", argv[1], elapsed);
     return EXIT_SUCCESS;
 }

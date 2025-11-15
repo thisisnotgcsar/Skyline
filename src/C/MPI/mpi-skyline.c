@@ -7,7 +7,6 @@
  * MPI Skyline 
 */ 
 
-#include "hpc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -184,15 +183,12 @@ int main( int argc, char* argv[] )
     if (rank == 0)
 	result = (int*) malloc(N * sizeof(int)); //master process allocates memory for the result
     s = (int*) malloc(N * sizeof(int)); 
-    const double tstart = hpc_gettime();
     skyline(&points, s, start, end);
     MPI_Reduce(s, result, N, MPI_INT, MPI_PROD, 0, MPI_COMM_WORLD);
-    const double elapsed = hpc_gettime() - tstart;
     if(rank == 0){
         r = count_dominants(result, N);
     	print_skyline(&points, result, r);
     	free(result);
-    	fprintf(stderr, "\n\t%d points\n\t%d dimensione\n\t%d points in skyline\n\nExecution time %f seconds\n", points.N, points.D, r, elapsed);
     }
     free_points(&points);
     free(s);

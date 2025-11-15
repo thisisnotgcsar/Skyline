@@ -1,12 +1,3 @@
-skyline.pdf
-GiulioGolinelli.zip
 /datafiles/*.in
-/datafiles/inputgen
-/results
-/src/omp-skyline
-/src/mpi-skyline
-/src/skyline
-Relazione.odt
-/assets
-report.html
 target
+venv/

@@ -10,30 +10,32 @@
 
 # Collect executable names for each subproject
 # OpenMP executables
-EXE_OMP:=$(basename $(wildcard omp-*.c))
+EXE_OMP:=src/C/OMP/omp-skyline
 # MPI executables
-EXE_MPI:=$(basename $(wildcard mpi-*.c))
-# CUDA executables
-EXE_CUDA:=$(basename $(wildcard cuda-*.cu))
+EXE_MPI:=src/C/MPI/mpi-skyline
 # Timer utility
 EXE_TIMER:=src/timer/timer
 # Rust serial executable
-EXE_RUST_SERIAL:=src/rust/SERIAL/target/release/rust
+EXE_RUST_SERIAL:=src/rust/SERIAL/target/release/rust-serial
 # Rust parallel executable
 EXE_RUST_PARALLEL:=src/rust/PARALLEL/target/release/rust-parallel
 # C serial executable
-EXE_C_SERIAL:=src/C/SERIAL/skyline
+EXE_C_SERIAL:=src/C/SERIAL/c-serial
 # Directory for input datafiles
 DATAFILES_DIR:=datafiles
 
 # Compiler and linker flags
 CFLAGS += -std=c99 -Wall -Wpedantic -O2 -D_XOPEN_SOURCE=600
 LDLIBS += -lm
-NVCC := nvcc
-NVCFLAGS += -Wno-deprecated-gpu-targets
-NVLDLIBS += -lm
 
-.PHONY: clean datafiles exe_timer prereq run_timer c-serial rust-serial rust-parallel all
+# Silence recipes if VERBOSE is not set to 1
+ifeq ($(VERBOSE),1)
+# normal output
+else
+.SILENT:
+endif
+
+.PHONY: clean datafiles exe_timer prereq run_timer c-serial rust-serial rust-parallel openmp mpi all
 
 # Build all datafiles or a specific one if 'datafile' variable is set
 datafiles:
@@ -54,19 +56,18 @@ run_timer: prereq
 	done
 
 # Build all main executables and prerequisites
-all: prereq openmp mpi cuda rust-serial rust-parallel c-serial
+# all: prereq openmp mpi rust-serial rust-parallel c-serial
+all: prereq c-serial openmp mpi rust-serial rust-parallel
 
 # Build OpenMP executables (with prerequisites)
-openmp: prereq $(EXE_OMP)
+openmp: prereq
+	$(MAKE) -C src/C/OMP
 	$(MAKE) run_timer EXE=$(EXE_OMP)
 
 # Build MPI executables (with prerequisites)
-mpi: prereq $(EXE_MPI)
+mpi: prereq
+	$(MAKE) -C src/C/MPI
 	$(MAKE) run_timer EXE=$(EXE_MPI)
-
-# Build CUDA executables (with prerequisites)
-cuda: prereq $(EXE_CUDA)
-	$(MAKE) run_timer EXE=$(EXE_CUDA)
 
 # Build Rust serial executable and run timer on it with input datafiles
 rust-serial: prereq
