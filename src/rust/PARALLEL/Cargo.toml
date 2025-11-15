@@ -1,0 +1,8 @@
+[package]
+name = "rust-parallel"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "rust-parallel"
+path = "src/main.rs"

@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     } else if (pid == 0) {
         // Child process: execute the external program
-        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stdout);    // Optional: redirect child's stdout to /dev/null
         execvp(argv[1], &argv[1]);
         // If execvp returns, there was an error launching the program
         perror("execvp");

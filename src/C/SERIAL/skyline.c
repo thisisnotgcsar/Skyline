@@ -144,7 +144,8 @@ void print_skyline( const points_t* points, const int *s, int r )
     for (i=0; i<N; i++) {
         if ( s[i] ) {
             for (k=0; k<D; k++) {
-                printf("%f ", P[i*D + k]);
+                // Print as float with 6 decimal digits, rounded to nearest 6th decimal digit
+                printf("%.6f ", P[i*D + k]);
             }
             printf("\n");
         }
@@ -163,7 +164,8 @@ int main( int argc, char* argv[] )
     read_input(&points);
     int *s = (int*)malloc(points.N * sizeof(*s));
     assert(s);
-    skyline(&points, s);
+    int r = skyline(&points, s);
+    print_skyline(&points, s, r);
     free_points(&points);
     free(s);
     return EXIT_SUCCESS;

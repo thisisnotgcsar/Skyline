@@ -19,6 +19,8 @@ EXE_CUDA:=$(basename $(wildcard cuda-*.cu))
 EXE_TIMER:=src/timer/timer
 # Rust serial executable
 EXE_RUST_SERIAL:=src/rust/SERIAL/target/release/rust
+# Rust parallel executable
+EXE_RUST_PARALLEL:=src/rust/PARALLEL/target/release/rust-parallel
 # C serial executable
 EXE_C_SERIAL:=src/C/SERIAL/skyline
 # Directory for input datafiles
@@ -31,7 +33,7 @@ NVCC := nvcc
 NVCFLAGS += -Wno-deprecated-gpu-targets
 NVLDLIBS += -lm
 
-.PHONY: clean datafiles exe_timer prereq run_timer ALL
+.PHONY: clean datafiles exe_timer prereq run_timer c-serial rust-serial rust-parallel all
 
 # Build all datafiles or a specific one if 'datafile' variable is set
 datafiles:
@@ -52,7 +54,7 @@ run_timer: prereq
 	done
 
 # Build all main executables and prerequisites
-ALL: prereq openmp mpi cuda rust-serial c-serial
+all: prereq openmp mpi cuda rust-serial rust-parallel c-serial
 
 # Build OpenMP executables (with prerequisites)
 openmp: prereq $(EXE_OMP)
@@ -71,10 +73,19 @@ rust-serial: prereq
 	$(MAKE) -C src/rust/SERIAL
 	$(MAKE) run_timer EXE=$(EXE_RUST_SERIAL)
 
+# Build Rust parallel executable and run timer on it with input datafiles
+rust-parallel: prereq
+	@$(MAKE) -C src/rust/PARALLEL
+	@$(MAKE) run_timer EXE=$(EXE_RUST_PARALLEL)
+
 c-serial: prereq
 	$(MAKE) -C src/C/SERIAL
 	$(MAKE) run_timer EXE=$(EXE_C_SERIAL)
 
 # Remove all build artifacts
 clean:
-	\rm -f $(EXE) *.o *~ # Remove all build artifacts
+	$(MAKE) -C src/timer clean
+	$(MAKE) -C src/rust/SERIAL clean
+	$(MAKE) -C src/rust/PARALLEL clean
+	$(MAKE) -C src/C/SERIAL clean
+	\rm -f $(EXE) *.o *~

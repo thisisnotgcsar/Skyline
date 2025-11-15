@@ -41,7 +41,8 @@ pub fn print_skyline(points: &Points, skyline: &(Vec<bool>, usize)) {
     for (point, &is_skyline) in points.p.iter().zip(skyline.0.iter()) {
         if is_skyline {
             for coord in point {
-                print!("{} ", coord);
+                // Round to nearest 6th decimal digit, print as float with 6 decimal digits
+                print!("{:.6} ", coord);
             }
             println!();
         }

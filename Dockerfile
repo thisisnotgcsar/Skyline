@@ -12,5 +12,11 @@ WORKDIR /workspace/
 # Copy all project files to workspace
 COPY . /workspace/
 
-# Build and run the Rust serial executable with timing and the simplest datafile
-CMD ["make", "rust-serial", "datafile=circle-N1000-D2.in"]
+# Accept build arguments TARGET and DATAFILE, default DATAFILE to 'circle-N1000-D2.in'
+ARG TARGET=c-serial
+ARG DATAFILE=circle-N1000-D2.in
+ENV TARGET=${TARGET}
+ENV DATAFILE=${DATAFILE}
+
+# Build and run the Rust executable with timing and the specified datafile
+CMD make "$TARGET" datafile="$DATAFILE"
