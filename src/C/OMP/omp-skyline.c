@@ -1,16 +1,21 @@
-/*
- * Giulio Golinelli
- * 0000883007
- * 17/02/2021
- * High Performance Computing
- *
- * OMP Skyline
-*/
+/**
+ * omp-skyline.c
+ * --------------
+ * Computes the skyline of a set of multi-dimensional points using OpenMP for parallelization.
+ * The skyline consists of points not dominated by any other point.
+ * Input and output formats are compatible for chaining.
+ * 
+ * Main steps:
+ *  - Read points from stdin
+ *  - Compute skyline using parallel reduction
+ *  - Print skyline points to stdout
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
+/* Structure to hold points and their dimensions */
 typedef struct
 {
     float *P; /* coordinates P[i][j] of point i               */
@@ -20,14 +25,12 @@ typedef struct
 
 /**
  * Read input from stdin. Input format is:
- *
  * d [other ignored stuff]
  * N
  * p0,0 p0,1 ... p0,d-1
  * p1,0 p1,1 ... p1,d-1
  * ...
  * pn-1,0 pn-1,1 ... pn-1,d-1
- *
  */
 void read_input(points_t *points)
 {
@@ -35,24 +38,33 @@ void read_input(points_t *points)
     int N, D, i, k;
     float *P;
 
+    /* Read dimension */
     if (1 != scanf("%d", &D))
     {
         fprintf(stderr, "FATAL: can not read the dimension\n");
         exit(EXIT_FAILURE);
     }
     assert(D >= 2);
+
+    /* Ignore rest of the line */
     if (NULL == fgets(buf, sizeof(buf), stdin))
-    { /* ignore rest of the line */
+    {
         fprintf(stderr, "FATAL: can not read the first line\n");
         exit(EXIT_FAILURE);
     }
+
+    /* Read number of points */
     if (1 != scanf("%d", &N))
     {
         fprintf(stderr, "FATAL: can not read the number of points\n");
         exit(EXIT_FAILURE);
     }
+
+    /* Allocate memory for points */
     P = (float *)malloc(D * N * sizeof(*P));
     assert(P);
+
+    /* Read coordinates for each point */
     for (i = 0; i < N; i++)
     {
         for (k = 0; k < D; k++)
@@ -69,6 +81,7 @@ void read_input(points_t *points)
     points->D = D;
 }
 
+// Free memory allocated for points
 void free_points(points_t *points)
 {
     free(points->P);
@@ -81,8 +94,7 @@ int dominates(const float *p, const float *q, int D)
 {
     int k;
 
-    /* The following loop could be merged, but the keep them separated
-       for the sake of readability */
+    /* Check if p is not worse than q in all dimensions */
     for (k = 0; k < D; k++)
     {
         if (p[k] < q[k])
@@ -90,6 +102,7 @@ int dominates(const float *p, const float *q, int D)
             return 0;
         }
     }
+    /* Check if p is strictly better than q in at least one dimension */
     for (k = 0; k < D; k++)
     {
         if (p[k] > q[k])
@@ -113,21 +126,24 @@ int skyline(const points_t *points, int *s)
     const float *P = points->P;
     int i, j, r = N;
 
+    /* Initially, assume all points are in the skyline */
     for (i = 0; i < N; i++)
     {
         s[i] = 1;
     }
 
+    /* For each point, check if it dominates any other point */
     for (i = 0; i < N; i++)
     {
         if (s[i])
         {
+            /* Parallelize inner loop using OpenMP */
             #pragma omp parallel for reduction(+:r) default(none) shared(i, s, P) firstprivate(N, D)
             for (j = 0; j < N; j++)
             {
                 if (s[j] && dominates(&(P[i * D]), &(P[j * D]), D))
                 {
-                    s[j] = 0;
+                    s[j] = 0; /* Remove dominated point from skyline */
                     r--;
                 }
             }
@@ -149,8 +165,11 @@ void print_skyline(const points_t *points, const int *s, int r)
     const float *P = points->P;
     int i, k;
 
+    /* Print dimension and number of skyline points */
     printf("%d\n", D);
     printf("%d\n", r);
+
+    /* Print coordinates of each skyline point */
     for (i = 0; i < N; i++)
     {
         if (s[i])
@@ -168,18 +187,27 @@ int main(int argc, char *argv[])
 {
     points_t points;
 
+    /* Check for correct usage */
     if (argc != 1)
     {
         fprintf(stderr, "Usage: %s < input_file > output_file\n", argv[0]);
         return EXIT_FAILURE;
     }
 
+    /* Read input points */
     read_input(&points);
+
+    /* Allocate array to mark skyline points */
     int *s = (int *)malloc(points.N * sizeof(*s));
     assert(s);
+
+    /* Compute skyline */
     const int r = skyline(&points, s);
+
+    /* Print skyline points */
     print_skyline(&points, s, r);
 
+    /* Free memory */
     free_points(&points);
     free(s);
     return EXIT_SUCCESS;
