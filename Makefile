@@ -89,4 +89,5 @@ clean:
 	$(MAKE) -C src/rust/SERIAL clean
 	$(MAKE) -C src/rust/PARALLEL clean
 	$(MAKE) -C src/C/SERIAL clean
-	\rm -f $(EXE) *.o *~
+	$(MAKE) -C src/C/OMP clean
+	$(MAKE) -C src/C/MPI clean
