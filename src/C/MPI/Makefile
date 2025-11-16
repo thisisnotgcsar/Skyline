@@ -2,12 +2,11 @@
 
 MPICC = mpicc
 CFLAGS = -std=c99 -Wall -Wpedantic -O2
-LDLIBS = -lm
 
 all: mpi-skyline
 
 mpi-skyline: mpi-skyline.c
-	$(MPICC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+	$(MPICC) $(CFLAGS) -o $@ $^
 
 clean:
 	\rm -f mpi-skyline *.o *~
