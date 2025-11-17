@@ -5,6 +5,7 @@
 # This script builds the Docker image with the specified requirements,
 # runs the container, executes the selected implementation on the chosen datafile,
 # displays output and timing information, and deletes all files created inside the container.
+# Note: CUDA implementation requires NVIDIA Docker runtime (nvidia-docker2) and a compatible GPU.
 # -----------------------------------------------------------------------------
 
 # Get implementation targets from main Makefile
@@ -44,6 +45,8 @@ if [[ "$TARGET" == "-h" || "$TARGET" == "--help" ]]; then
     echo "  - Run the container and execute the selected implementation on the chosen datafile."
     echo "  - Display the output and timing information."
     echo "  - Automatically delete all files created inside the container after execution."
+    echo
+    echo "Note: CUDA target requires NVIDIA Docker runtime and a compatible GPU."
     echo
     echo "Arguments:"
     echo "  IMPLEMENTATION_TARGET: One of the following (default: c-serial):"
@@ -92,4 +95,9 @@ else
 fi
 
 # Run the container and display output/timing info
-docker run --rm skyline-dev-image
+# Use --gpus all flag if target is cuda
+if [[ "$TARGET" == "cuda" ]]; then
+    docker run --rm --gpus all skyline-dev-image
+else
+    docker run --rm skyline-dev-image
+fi

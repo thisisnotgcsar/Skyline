@@ -13,6 +13,8 @@
 EXE_OMP:=src/C/OMP/omp-skyline
 # MPI executables
 EXE_MPI:=src/C/MPI/mpi-skyline
+# CUDA executables
+EXE_CUDA:=src/C/CUDA/cuda-skyline
 # Timer utility
 EXE_TIMER:=src/timer/timer
 # Rust serial executable
@@ -35,7 +37,7 @@ else
 .SILENT:
 endif
 
-.PHONY: clean datafiles exe_timer prereq run_timer c-serial rust-serial rust-parallel openmp mpi all
+.PHONY: clean datafiles exe_timer prereq run_timer c-serial rust-serial rust-parallel openmp mpi cuda all
 
 # Build all datafiles or a specific one if 'datafile' variable is set
 datafiles:
@@ -56,8 +58,8 @@ run_timer: prereq
 	done
 
 # Build all main executables and prerequisites
-# all: prereq openmp mpi rust-serial rust-parallel c-serial
-all: prereq c-serial openmp mpi rust-serial rust-parallel
+# all: prereq openmp mpi cuda rust-serial rust-parallel c-serial
+all: prereq c-serial openmp mpi rust-serial rust-parallel cuda
 
 # Build OpenMP executables (with prerequisites)
 openmp: prereq
@@ -68,6 +70,11 @@ openmp: prereq
 mpi: prereq
 	$(MAKE) -C src/C/MPI
 	$(MAKE) run_timer EXE=$(EXE_MPI)
+
+# Build CUDA executables (with prerequisites)
+cuda: prereq
+	$(MAKE) -C src/C/CUDA
+	$(MAKE) run_timer EXE=$(EXE_CUDA)
 
 # Build Rust serial executable and run timer on it with input datafiles
 rust-serial: prereq
@@ -91,3 +98,4 @@ clean:
 	$(MAKE) -C src/C/SERIAL clean
 	$(MAKE) -C src/C/OMP clean
 	$(MAKE) -C src/C/MPI clean
+	$(MAKE) -C src/C/CUDA clean

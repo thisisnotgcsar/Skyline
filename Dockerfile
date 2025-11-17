@@ -1,7 +1,16 @@
-# Use official Rust image
-FROM rust:latest
+# Use NVIDIA CUDA base image with development tools
+FROM nvidia/cuda:12.3.0-devel-ubuntu22.04
 
-# Install C build tools, useful utilities, OpenMP (via GCC), and MPI (mpich), and rbox (from qhull)
+# Install Rust
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# Add Rust to PATH
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Install C build tools, useful utilities, OpenMP (via GCC), MPI (mpich), and rbox (from qhull)
 RUN apt-get update && \
     apt-get install -y build-essential make gcc g++ vim git qhull-bin mpich && \
     rm -rf /var/lib/apt/lists/*

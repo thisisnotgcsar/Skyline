@@ -81,24 +81,19 @@ void free_points(points_t *points)
 int dominates(const float *p, const float *q, int D)
 {
     int k;
-
-    /* Check if p is not worse than q in all dimensions */
+    int strictly_better = 0;
     for (k = 0; k < D; k++)
     {
         if (p[k] < q[k])
         {
             return 0;
         }
-    }
-    /* Check if p is strictly better than q in at least one dimension */
-    for (k = 0; k < D; k++)
-    {
         if (p[k] > q[k])
         {
-            return 1;
+            strictly_better = 1;
         }
     }
-    return 0;
+    return strictly_better;
 }
 
 /**

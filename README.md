@@ -27,6 +27,9 @@ For example, in a 2D space where each point represents a product with price and 
 
 # 2. How to Run (Dockerized)
 
+> **Note:** If you want to run the CUDA implementation (`cuda` target), you must have the NVIDIA Docker runtime (`nvidia-docker2`) or the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/) installed, and your system must have a compatible NVIDIA GPU.  
+> Standard Docker alone does **not** support GPU/CUDA workloads.
+
 This project is **completely dockerized**. You do **not** need to install or uninstall any dependencies on your system.  
 All compilation and execution are handled inside a Docker container.
 
@@ -60,6 +63,7 @@ The following targets are available in the Makefile (use as `[IMPLEMENTATION_TAR
 - `c-serial`        : Build and run the serial C implementation
 - `openmp`          : Build and run the OpenMP implementation
 - `mpi`             : Build and run the MPI implementation
+- `cuda`            : Build and run the CUDA implementation
 - `rust-serial`     : Build and run the Rust serial implementation
 - `rust-parallel`   : Build and run the Rust parallel implementation
 - `all`             : Build all executables and prerequisites

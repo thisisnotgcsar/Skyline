@@ -18,6 +18,10 @@ typedef struct
     int D;    /* Number of dimensions */
 } points_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Read points from stdin */
 void read_input(points_t *points);
 
@@ -29,5 +33,9 @@ int dominates(const float *p, const float *q, int D);
 
 /* Print the coordinates of points belonging to the skyline */
 void print_skyline(const points_t *points, const int *s, int r);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // SKYLINE_UTILS_H
