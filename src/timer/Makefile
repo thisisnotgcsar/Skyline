@@ -9,7 +9,7 @@ EXE_TIMER:=timer
 all: $(EXE_TIMER)
 
 $(EXE_TIMER): timer.c
-	$(CC) -std=c99 -Wall -O2 timer.c -o $(EXE_TIMER) # Compile timer.c to timer
+	$(CC) -std=c99 -Wall -O2 timer.c -o $(EXE_TIMER)
 
 clean:
-	\rm -f $(EXE_TIMER) *.o *~ # Remove build artifacts
+	\rm -f $(EXE_TIMER) *.o *~
