@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the author."
+title: "Skyline"
+authors:
+  - family-names: Golinelli
+    given-names: Giulio
+type: software
+url: "https://github.com/giuliocsr/Skyline"
+date-released: "2023"
+license: "CC-BY-NC-SA-4.0"
